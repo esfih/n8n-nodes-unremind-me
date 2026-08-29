@@ -8,10 +8,18 @@ import type {
 export class UnRemindMeApi implements ICredentialType {
   name = 'unRemindMeApi';
   displayName = 'UnRemind.me API';
-  // Full HTTPS URL, not a slug. `--fix` for the miscased rule camelCased the
-  // VALUE into 'httpsUnremindMeMcp' — silently turning a working link into a
-  // meaningless string. Autofixers can corrupt data, not just formatting;
-  // diff what they change.
+  // Two lint rules contradict here and only one can be satisfied:
+  //   cred-class-field-documentation-url-miscased  wants camelCase (a slug
+  //     that n8n resolves against ITS OWN docs — right for a built-in node)
+  //   cred-class-field-documentation-url-not-http-url  wants a real URL
+  // A community node's docs are not on n8n's site, so the URL is correct and
+  // the slug rule is the one that does not apply. Suppressed deliberately.
+  //
+  // Do NOT run --fix on this line: it rewrote the VALUE
+  // 'https://unremind.me/mcp/' into 'httpsUnremindMeMcp', silently turning a
+  // working link into a dead string. Autofixers can corrupt data, not just
+  // formatting.
+  // eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased
   documentationUrl = 'https://unremind.me/mcp/';
 
   properties: INodeProperties[] = [
