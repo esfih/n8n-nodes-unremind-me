@@ -23,10 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `registry-url:` on purpose. setup-node writes an .npmrc line
+      # binding auth to ${NODE_AUTH_TOKEN}; with OIDC there is no token, and
+      # an EMPTY auth entry is worse than none — npm sends a blank credential
+      # instead of falling through to the OIDC exchange.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
 
       # --ignore-scripts on purpose. n8n-workflow pulls `isolated-vm`, a
       # native module that fails to build here — and we never run it: it is a
@@ -53,8 +56,11 @@ jobs:
       #
       # npm >= 11.5.1 is required for OIDC; the runner's bundled npm can be
       # older, so it is upgraded explicitly rather than assumed.
+      # npm 11.5.1+ is required for OIDC. Pinned to the 11 line rather than
+      # `latest`: npm 12 requires a newer Node than this job runs, so
+      # `latest` fails EBADENGINE — a version-drift break waiting to happen.
       - name: Upgrade npm (OIDC support)
-        run: npm install -g npm@latest
+        run: npm install -g npm@^11
 
       - name: Publish (OIDC, no token)
         run: npm publish --provenance --access public
