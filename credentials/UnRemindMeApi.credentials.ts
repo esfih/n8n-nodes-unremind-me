@@ -8,7 +8,11 @@ import type {
 export class UnRemindMeApi implements ICredentialType {
   name = 'unRemindMeApi';
   displayName = 'UnRemind.me API';
-  documentationUrl = 'httpsUnremindMeMcp';
+  // Full HTTPS URL, not a slug. `--fix` for the miscased rule camelCased the
+  // VALUE into 'httpsUnremindMeMcp' — silently turning a working link into a
+  // meaningless string. Autofixers can corrupt data, not just formatting;
+  // diff what they change.
+  documentationUrl = 'https://unremind.me/mcp/';
 
   properties: INodeProperties[] = [
     {
