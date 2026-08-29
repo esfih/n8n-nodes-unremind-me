@@ -8,7 +8,7 @@ import type {
 export class UnRemindMeApi implements ICredentialType {
   name = 'unRemindMeApi';
   displayName = 'UnRemind.me API';
-  documentationUrl = 'https://unremind.me/mcp/';
+  documentationUrl = 'httpsUnremindMeMcp';
 
   properties: INodeProperties[] = [
     {

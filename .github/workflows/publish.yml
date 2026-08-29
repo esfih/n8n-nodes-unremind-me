@@ -42,8 +42,13 @@ jobs:
       # n8n's own linter. It catches the conventions the node panel depends on
       # — display names, option ordering, required descriptions — which are
       # invisible until a reviewer rejects the submission.
+      # MUST fail the build. This ran with `|| echo warning` for two releases
+      # and silently reported nothing at all: ESLint 9 requires flat config,
+      # refused to start, and the fallback swallowed it. Seven real convention
+      # violations shipped as a result — exactly the class n8n auto-rejects.
+      # A lint step that cannot fail is not a lint step.
       - name: Lint (n8n node conventions)
-        run: npm run lint || echo "::warning::lint reported issues"
+        run: npm run lint
 
       # Published over OIDC (npm Trusted Publishing) — no NODE_AUTH_TOKEN,
       # no NPM_TOKEN secret, nothing to leak, rotate or expire. npm verifies

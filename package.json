@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unremind-me",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for UnRemind.me \u2014 context-aware reminders that surface when your situation matches, not at a fixed time",
   "keywords": [
     "n8n-community-node-package",
@@ -42,8 +42,8 @@
     ]
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "n8n-workflow": "*",
     "typescript": "^5.5.0"
