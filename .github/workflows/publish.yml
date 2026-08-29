@@ -45,7 +45,16 @@ jobs:
       - name: Lint (n8n node conventions)
         run: npm run lint || echo "::warning::lint reported issues"
 
-      - name: Publish
+      # Published over OIDC (npm Trusted Publishing) — no NODE_AUTH_TOKEN,
+      # no NPM_TOKEN secret, nothing to leak, rotate or expire. npm verifies
+      # the OIDC claim against the trusted publisher configured on the
+      # package: this repo, this workflow FILENAME. Renaming this file breaks
+      # publishing until the trusted publisher is updated to match.
+      #
+      # npm >= 11.5.1 is required for OIDC; the runner's bundled npm can be
+      # older, so it is upgraded explicitly rather than assumed.
+      - name: Upgrade npm (OIDC support)
+        run: npm install -g npm@latest
+
+      - name: Publish (OIDC, no token)
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
