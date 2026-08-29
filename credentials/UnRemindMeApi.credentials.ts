@@ -2,24 +2,26 @@ import type {
   IAuthenticateGeneric,
   ICredentialTestRequest,
   ICredentialType,
+  Icon,
   INodeProperties,
 } from 'n8n-workflow';
 
 export class UnRemindMeApi implements ICredentialType {
   name = 'unRemindMeApi';
   displayName = 'UnRemind.me API';
-  // Two lint rules contradict here and only one can be satisfied:
-  //   cred-class-field-documentation-url-miscased  wants camelCase (a slug
-  //     that n8n resolves against ITS OWN docs — right for a built-in node)
-  //   cred-class-field-documentation-url-not-http-url  wants a real URL
-  // A community node's docs are not on n8n's site, so the URL is correct and
-  // the slug rule is the one that does not apply. Suppressed deliberately.
-  //
-  // Do NOT run --fix on this line: it rewrote the VALUE
-  // 'https://unremind.me/mcp/' into 'httpsUnremindMeMcp', silently turning a
-  // working link into a dead string. Autofixers can corrupt data, not just
-  // formatting.
-  // eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased
+
+  // The credential carries its own copy of the icon: n8n resolves a `file:`
+  // reference relative to the declaring file, so credentials/ cannot point at
+  // the one in nodes/. Both themed variants are required.
+  icon: Icon = { light: 'file:unremind.svg', dark: 'file:unremind.dark.svg' };
+
+  // Do NOT run eslint --fix over this line. A rule that wanted a camelCase
+  // docs SLUG (correct for a built-in node, whose docs live on n8n's own
+  // site) once autofixed the VALUE 'https://unremind.me/mcp/' into
+  // 'httpsUnremindMeMcp', silently turning a working link into a dead string.
+  // Autofixers can corrupt data, not just formatting. The scan gate now
+  // disables that rule for community credentials, so no suppression is needed
+  // here — but the URL is still the thing to protect.
   documentationUrl = 'https://unremind.me/mcp/';
 
   properties: INodeProperties[] = [

@@ -18,4 +18,9 @@ function copyIcons(from, to) {
     }
   }
 }
-copyIcons('nodes', path.join('dist', 'nodes'));
+// Both trees, not just nodes/: n8n resolves a credential's `file:` icon
+// relative to the credential file, so credentials/ needs its own copy in
+// dist/ or the credential renders iconless with no build error to show for it.
+for (const dir of ['nodes', 'credentials']) {
+  copyIcons(dir, path.join('dist', dir));
+}

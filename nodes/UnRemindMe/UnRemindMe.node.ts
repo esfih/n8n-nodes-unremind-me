@@ -4,8 +4,9 @@ import type {
   INodeExecutionData,
   INodeType,
   INodeTypeDescription,
+  JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 // The node speaks JSON-RPC to the existing MCP server rather than to a
 // separate REST API. That is deliberate: the MCP endpoint already carries the
@@ -18,14 +19,18 @@ export class UnRemindMe implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'UnRemind.me',
     name: 'unRemindMe',
-    icon: 'file:unremind.svg',
+    icon: { light: 'file:unremind.svg', dark: 'file:unremind.dark.svg' },
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
+    // Lets an AI Agent node call these operations directly as tools, which is
+    // the whole point of a reminders integration: the agent decides when a
+    // reminder is worth creating.
+    usableAsTool: true,
     description: 'Context-aware reminders that surface when your situation matches, not at a fixed time',
     defaults: { name: 'UnRemind.me' },
-    inputs: ['main'],
-    outputs: ['main'],
+    inputs: [NodeConnectionTypes.Main],
+    outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: 'unRemindMeApi', required: true }],
     requestDefaults: { baseURL: 'https://unremind.me' },
     properties: [
@@ -216,11 +221,23 @@ export class UnRemindMe implements INodeType {
 
         out.push({ json: payload, pairedItem: { item: i } });
       } catch (error) {
+        // Normalise first, then decide what to do with it. Errors raised
+        // deliberately above already carry a useful message and itemIndex;
+        // anything else is a raw transport or HTTP failure, which n8n can only
+        // render usefully once wrapped. Doing this before the continueOnFail
+        // branch means the item that gets written out carries the same
+        // readable message the thrown error would have.
+        const nodeError =
+          error instanceof NodeOperationError || error instanceof NodeApiError
+            ? error
+            : new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
+
         if (this.continueOnFail()) {
-          out.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
+          out.push({ json: { error: nodeError.message }, pairedItem: { item: i } });
           continue;
         }
-        throw error;
+
+        throw nodeError;
       }
     }
 

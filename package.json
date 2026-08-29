@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-unremind-me",
-  "version": "0.1.4",
-  "description": "n8n community node for UnRemind.me \u2014 context-aware reminders that surface when your situation matches, not at a fixed time",
+  "version": "0.1.5",
+  "description": "n8n community node for UnRemind.me — context-aware reminders that surface when your situation matches, not at a fixed time",
   "keywords": [
     "n8n-community-node-package",
     "unremind",
@@ -27,7 +27,7 @@
   "scripts": {
     "build": "tsc && node scripts/copy-icons.js",
     "dev": "tsc --watch",
-    "lint": "eslint nodes credentials package.json"
+    "lint": "node scripts/lint.mjs"
   },
   "files": [
     "dist"
@@ -42,11 +42,11 @@
     ]
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^7.18.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-n8n-nodes-base": "^1.16.3",
-    "n8n-workflow": "*",
-    "typescript": "^5.5.0"
+    "@n8n/eslint-plugin-community-nodes": "^0.30.0",
+    "@n8n/scan-community-package": "^0.33.0",
+    "eslint": "^9.29.0",
+    "n8n-workflow": "^2.16.0",
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
