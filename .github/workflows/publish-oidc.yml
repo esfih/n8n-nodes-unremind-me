@@ -1,0 +1,49 @@
+# OIDC publish — SEPARATE from publish.yml on purpose.
+#
+# npm binds a trusted publisher to a specific workflow FILENAME. Keeping the
+# working token-based publish.yml untouched means a failed OIDC experiment can
+# never break releases; once this one succeeds, publish.yml is retired.
+#
+# IMPORTANT: the trusted publisher on npm must name THIS file —
+#   Workflow filename: publish-oidc.yml
+name: Publish to npm (OIDC)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # No registry-url: it writes an .npmrc auth line bound to
+      # ${NODE_AUTH_TOKEN}, and an EMPTY credential shadows the OIDC exchange.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install -g npm@^11
+      - run: npm ci --ignore-scripts || npm install --ignore-scripts
+      - run: npm run build
+      - run: npm run lint
+
+      # Everything needed to diagnose a failure in ONE run, instead of a round
+      # trip per hypothesis. The previous attempt failed with ENEEDAUTH and no
+      # OIDC attempt, and none of these values were visible.
+      - name: Diagnostics
+        run: |
+          echo "npm version : $(npm --version)   (OIDC needs >= 11.5.1)"
+          echo "node version: $(node --version)"
+          echo "OIDC token available: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}${ACTIONS_ID_TOKEN_REQUEST_URL:-NO — id-token: write missing}"
+          echo "repository  : $GITHUB_REPOSITORY"
+          echo "workflow ref: $GITHUB_WORKFLOW_REF"
+          echo "--- .npmrc (auth lines shadow OIDC) ---"
+          cat ~/.npmrc 2>/dev/null || echo "(no ~/.npmrc — good)"
+          cat .npmrc 2>/dev/null || echo "(no repo .npmrc — good)"
+
+      - name: Publish over OIDC
+        run: npm publish --provenance --access public

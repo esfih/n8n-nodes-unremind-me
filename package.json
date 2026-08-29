@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-unremind-me",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "n8n community node for UnRemind.me \u2014 context-aware reminders that surface when your situation matches, not at a fixed time",
   "keywords": [
     "n8n-community-node-package",
