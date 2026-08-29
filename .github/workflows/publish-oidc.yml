@@ -1,15 +1,25 @@
-# OIDC publish — SEPARATE from publish.yml on purpose.
+# Publish to npm over OIDC (npm Trusted Publishing). NO TOKEN ANYWHERE.
 #
-# npm binds a trusted publisher to a specific workflow FILENAME. Keeping the
-# working token-based publish.yml untouched means a failed OIDC experiment can
-# never break releases; once this one succeeds, publish.yml is retired.
+# ⚠️ DO NOT RENAME THIS FILE. npm binds the trusted publisher to the workflow
+# FILENAME — renaming it breaks publishing until the publisher is updated at
+# npmjs.com/package/n8n-nodes-unremind-me/access to match.
 #
-# IMPORTANT: the trusted publisher on npm must name THIS file —
-#   Workflow filename: publish-oidc.yml
-name: Publish to npm (OIDC)
+# Why OIDC rather than a token: nothing to leak, rotate or expire. The
+# bootstrap token this replaced would have expired 2026-09-28 and produced a
+# 403 that looked like a bug.
+#
+# Requirements, all load-bearing and all verified by the Diagnostics step:
+#   - permissions: id-token: write   (no OIDC token without it)
+#   - npm >= 11.5.1                  (the runner's bundled npm is older)
+#   - NO `registry-url:` on setup-node — it writes an .npmrc auth line bound
+#     to ${NODE_AUTH_TOKEN}, and an EMPTY credential shadows the OIDC exchange
+#   - the trusted publisher on npm must name this exact filename
+name: Publish to npm
 
 on:
   workflow_dispatch:
+  push:
+    tags: ["v*"]
 
 jobs:
   publish:
