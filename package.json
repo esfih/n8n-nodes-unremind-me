@@ -1,0 +1,54 @@
+{
+  "name": "n8n-nodes-unremind-me",
+  "version": "0.1.0",
+  "description": "n8n community node for UnRemind.me \u2014 context-aware reminders that surface when your situation matches, not at a fixed time",
+  "keywords": [
+    "n8n-community-node-package",
+    "unremind",
+    "reminders",
+    "tasks",
+    "mcp",
+    "ai-agents"
+  ],
+  "license": "MIT",
+  "homepage": "https://unremind.me",
+  "author": {
+    "name": "UnRemind.me",
+    "email": "support@unremind.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esfih/n8n-nodes-unremind-me.git"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && node scripts/copy-icons.js",
+    "dev": "tsc --watch",
+    "lint": "eslint nodes credentials package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/UnRemindMeApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/UnRemindMe/UnRemindMe.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "n8n-workflow": "*",
+    "typescript": "^5.5.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

@@ -1,0 +1,6 @@
+.github/
+nodes/**/*.ts
+credentials/**/*.ts
+tsconfig.json
+gulpfile.js
+.eslintrc.js

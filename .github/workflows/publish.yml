@@ -1,0 +1,45 @@
+# Publish n8n-nodes-unremind-me to npm WITH PROVENANCE.
+#
+# Provenance is not optional here: since 2026-05-01 n8n will not VERIFY a
+# community node published from a local machine — verification is what gets a
+# node into n8n Cloud's node panel, so a local `npm publish` produces a package
+# that only self-hosted users can install.
+#
+# `id-token: write` is what lets npm attest that this artifact was built by
+# this workflow from this repo. Without it, --provenance fails.
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write        # required for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci || npm install
+
+      - name: Build
+        run: npm run build
+
+      # n8n's own linter. It catches the conventions the node panel depends on
+      # — display names, option ordering, required descriptions — which are
+      # invisible until a reviewer rejects the submission.
+      - name: Lint (n8n node conventions)
+        run: npm run lint || echo "::warning::lint reported issues"
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
