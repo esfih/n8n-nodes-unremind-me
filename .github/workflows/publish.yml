@@ -28,7 +28,13 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - run: npm ci || npm install
+      # --ignore-scripts on purpose. n8n-workflow pulls `isolated-vm`, a
+      # native module that fails to build here — and we never run it: it is a
+      # devDependency + peerDependency used ONLY for TypeScript types at build
+      # time, and n8n provides the real implementation at runtime. Skipping
+      # install scripts avoids compiling something the published package does
+      # not contain.
+      - run: npm ci --ignore-scripts || npm install --ignore-scripts
 
       - name: Build
         run: npm run build
