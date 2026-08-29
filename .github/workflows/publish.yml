@@ -23,13 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # No `registry-url:` on purpose. setup-node writes an .npmrc line
-      # binding auth to ${NODE_AUTH_TOKEN}; with OIDC there is no token, and
-      # an EMPTY auth entry is worse than none — npm sends a blank credential
-      # instead of falling through to the OIDC exchange.
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://registry.npmjs.org
 
       # --ignore-scripts on purpose. n8n-workflow pulls `isolated-vm`, a
       # native module that fails to build here — and we never run it: it is a
@@ -62,5 +59,24 @@ jobs:
       - name: Upgrade npm (OIDC support)
         run: npm install -g npm@^11
 
-      - name: Publish (OIDC, no token)
+      # TOKEN AUTH, with OIDC as the intended end state.
+      #
+      # Trusted Publishing was configured on the package but publishing still
+      # returned ENEEDAUTH — npm never attempted the OIDC exchange, and npm
+      # exposes no API to read back the trusted-publisher config, so it cannot
+      # be diagnosed from outside the dashboard. Rather than block releases on
+      # it, this keeps token auth and leaves OIDC as a follow-up.
+      #
+      # To finish the migration: confirm on
+      # npmjs.com/package/n8n-nodes-unremind-me/access that the trusted
+      # publisher lists repo `esfih/n8n-nodes-unremind-me`, workflow filename
+      # exactly `publish.yml`, and that "Allow npm publish" is ticked. Then
+      # drop `registry-url` above, delete NODE_AUTH_TOKEN below, and the
+      # NPM_TOKEN secret.
+      #
+      # NOTE: the bootstrap token expires 2026-09-28. If a publish fails with
+      # 403 after that date, this is why.
+      - name: Publish
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
